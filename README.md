@@ -5,8 +5,8 @@
 3. Created a README.md file: `touch README.md`
 4. Created dirs scripts & results: `mkdir scripts` then `mkdir results`
 -  Added results/ to .gitignore: `echo "results/" > .gitignore`
-- Copied in data for assignment: `cp -rv ../garrigos-data/fastq data`
-- Added data/ to .gitignore: `echo "data/" >> .gitignore`
+- Copied in fastq data to data dir: `cp -rv ../garrigos-data/fastq data` (this step was accidentally skipped until the end, added back after Q14 in Part C)
+- Added data/ to .gitignore: `echo "data/" >> .gitignore` 
 5. Made the trimgalore.sh file: `touch scripts/trimgalore.sh`
 - Copied in the starting script in the assignment:
 ```bash
@@ -88,7 +88,7 @@ apptainer exec "$TRIMGALORE_CONTAINER" \
 
 And got the output: `Submitted batch job 37876463`
 
-I unfortunately didn't catch the job pending, but I did catch it running by by entering: `squeue -u $USER -l`
+9. I unfortunately didn't catch the job pending, but I did catch it running by by entering: `squeue -u $USER -l`
 
 ```bash
 Sun Oct 19 20:33:42 2025
@@ -200,6 +200,7 @@ There were also these outputs for R1 and R2 in the trimmng reports:
 <br>
 
 Bonus Question: Though I unforunately couldn't get it to work, this was the change to the script that I attempted:
+
 ```bash
 # Replacing R1 names
 sample_id=$(apptainer exec "$TRIMGALORE_CONTAINER" \
@@ -230,3 +231,135 @@ R2_out_init="$outdir"/$(basename "$sample_id2")
 mv "$outdir"/"$R2_out_init"_R2.fastq.gz "$R2_out_init"
 ```
 
+<br>
+
+## Part C:
+
+13. I first tested it using the input:
+```bash
+for fastq in ../garrigos-data/fastq/*fastq.gz; do
+  echo sbatch scripts/trimgalore.sh "$fastq" results/fastqc
+done
+```
+Then ran the job using:
+for R1 in ../garrigos-data/fastq/*_R1.fastq.gz; do
+    R2=${R1/_R1/_R2}
+    sbatch scripts/trimgalore.sh "$fastq" results/fastqc
+done
+
+But it didn't work. After working with it a bit more, my output was:
+
+```bash
+for R1 in ../garrigos-data/fastq/*_R1.fastq.gz; do
+    R2=${R1/_R1/_R2}
+    sbatch scripts/trimgalore.sh "$R1" "$R2" results/fastq
+done
+```
+I got the output: 
+```bash
+Submitted batch job 37879025
+Submitted batch job 37879026
+Submitted batch job 37879027
+Submitted batch job 37879028
+Submitted batch job 37879029
+Submitted batch job 37879030
+Submitted batch job 37879031
+Submitted batch job 37879032
+Submitted batch job 37879033
+Submitted batch job 37879034
+Submitted batch job 37879035
+Submitted batch job 37879036
+Submitted batch job 37879037
+Submitted batch job 37879038
+Submitted batch job 37879039
+Submitted batch job 37879040
+Submitted batch job 37879041
+Submitted batch job 37879042
+Submitted batch job 37879043
+Submitted batch job 37879044
+Submitted batch job 37879045
+Submitted batch job 37879046
+```
+
+14. I watched the job using the `squeue -u $USER -l` command. It went by pretty fast, but the ones I caught were:
+
+```bash
+Sun Oct 19 23:40:35 2025
+             JOBID PARTITION     NAME     USER    STATE       TIME TIME_LIMI  NODES NODELIST(REASON)
+          37876801       cpu ondemand egarner9  RUNNING      27:28   2:00:00      1 p0224
+          37879046 cpu,cpu-e trimgalo egarner9  PENDING       0:00   1:20:00      1 (None)
+          37879045 cpu,cpu-e trimgalo egarner9  PENDING       0:00   1:20:00      1 (None)
+          37879044 cpu,cpu-e trimgalo egarner9  PENDING       0:00   1:20:00      1 (None)
+          37879043 cpu,cpu-e trimgalo egarner9  PENDING       0:00   1:20:00      1 (None)
+          37879042 cpu,cpu-e trimgalo egarner9  PENDING       0:00   1:20:00      1 (None)
+          37879041 cpu,cpu-e trimgalo egarner9  PENDING       0:00   1:20:00      1 (None)
+          37879040 cpu,cpu-e trimgalo egarner9  PENDING       0:00   1:20:00      1 (None)
+          37879039 cpu,cpu-e trimgalo egarner9  PENDING       0:00   1:20:00      1 (None)
+          37879038 cpu,cpu-e trimgalo egarner9  PENDING       0:00   1:20:00      1 (None)
+          37879037 cpu,cpu-e trimgalo egarner9  PENDING       0:00   1:20:00      1 (None)
+          37879036 cpu,cpu-e trimgalo egarner9  PENDING       0:00   1:20:00      1 (None)
+          37879035 cpu,cpu-e trimgalo egarner9  PENDING       0:00   1:20:00      1 (None)
+          37879034 cpu,cpu-e trimgalo egarner9  PENDING       0:00   1:20:00      1 (None)
+          37879033 cpu,cpu-e trimgalo egarner9  PENDING       0:00   1:20:00      1 (None)
+          37879032 cpu,cpu-e trimgalo egarner9  PENDING       0:00   1:20:00      1 (None)
+          37879031 cpu,cpu-e trimgalo egarner9  PENDING       0:00   1:20:00      1 (None)
+          37879030 cpu,cpu-e trimgalo egarner9  PENDING       0:00   1:20:00      1 (Reservation)
+          37879029 cpu,cpu-e trimgalo egarner9  PENDING       0:00   1:20:00      1 (Reservation)
+          37879028 cpu,cpu-e trimgalo egarner9  PENDING       0:00   1:20:00      1 (Reservation)
+          37879027 cpu,cpu-e trimgalo egarner9  PENDING       0:00   1:20:00      1 (Reservation)
+          37879026 cpu,cpu-e trimgalo egarner9  PENDING       0:00   1:20:00      1 (Reservation)
+          37879025 cpu,cpu-e trimgalo egarner9  PENDING       0:00   1:20:00      1 (Reservation)
+```
+```bash
+Sun Oct 19 23:41:10 2025
+             JOBID PARTITION     NAME     USER    STATE       TIME TIME_LIMI  NODES NODELIST(REASON)
+          37879025       cpu trimgalo egarner9  RUNNING       0:16   1:20:00      1 p0001
+          37879026       cpu trimgalo egarner9  RUNNING       0:16   1:20:00      1 p0012
+          37879027       cpu trimgalo egarner9  RUNNING       0:16   1:20:00      1 p0023
+          37879028       cpu trimgalo egarner9  RUNNING       0:16   1:20:00      1 p0023
+          37879029       cpu trimgalo egarner9  RUNNING       0:16   1:20:00      1 p0197
+          37879030       cpu trimgalo egarner9  RUNNING       0:16   1:20:00      1 p0198
+          37879031       cpu trimgalo egarner9  RUNNING       0:16   1:20:00      1 p0157
+          37879032       cpu trimgalo egarner9  RUNNING       0:16   1:20:00      1 p0157
+          37879033       cpu trimgalo egarner9  RUNNING       0:16   1:20:00      1 p0157
+          37879034       cpu trimgalo egarner9  RUNNING       0:16   1:20:00      1 p0158
+          37879035       cpu trimgalo egarner9  RUNNING       0:16   1:20:00      1 p0158
+          37879036       cpu trimgalo egarner9  RUNNING       0:16   1:20:00      1 p0158
+          37879037       cpu trimgalo egarner9  RUNNING       0:16   1:20:00      1 p0223
+          37879038       cpu trimgalo egarner9  RUNNING       0:16   1:20:00      1 p0223
+          37879039       cpu trimgalo egarner9  RUNNING       0:16   1:20:00      1 p0223
+          37879040       cpu trimgalo egarner9  RUNNING       0:16   1:20:00      1 p0224
+          37879041       cpu trimgalo egarner9  RUNNING       0:16   1:20:00      1 p0224
+          37879042       cpu trimgalo egarner9  RUNNING       0:16   1:20:00      1 p0224
+          37879043       cpu trimgalo egarner9  RUNNING       0:16   1:20:00      1 p0016
+          37879044       cpu trimgalo egarner9  RUNNING       0:16   1:20:00      1 p0017
+          37879045       cpu trimgalo egarner9  RUNNING       0:16   1:20:00      1 p0017
+          37879046       cpu trimgalo egarner9  RUNNING       0:16   1:20:00      1 p0014
+          37876801       cpu ondemand egarner9  RUNNING      28:03   2:00:00      1 p0224
+```
+
+```bash
+Sun Oct 19 23:41:30 2025
+             JOBID PARTITION     NAME     USER    STATE       TIME TIME_LIMI  NODES NODELIST(REASON)
+          37876801       cpu ondemand egarner9  RUNNING      28:23   2:00:00      1 p0224
+```
+
+
+I used `-ls` to check that the slurm files were there:
+
+```bash
+data                           slurm-trimgalore-37879030.out  slurm-trimgalore-37879039.out
+README.md                      slurm-trimgalore-37879031.out  slurm-trimgalore-37879040.out
+results                        slurm-trimgalore-37879032.out  slurm-trimgalore-37879041.out
+scripts                        slurm-trimgalore-37879033.out  slurm-trimgalore-37879042.out
+slurm-trimgalore-37879025.out  slurm-trimgalore-37879034.out  slurm-trimgalore-37879043.out
+slurm-trimgalore-37879026.out  slurm-trimgalore-37879035.out  slurm-trimgalore-37879044.out
+slurm-trimgalore-37879027.out  slurm-trimgalore-37879036.out  slurm-trimgalore-37879045.out
+slurm-trimgalore-37879028.out  slurm-trimgalore-37879037.out  slurm-trimgalore-37879046.out
+slurm-trimgalore-37879029.out  slurm-trimgalore-37879038.out
+```
+
+I also went through a few to make sure the final logging messages were there.
+
+I moved the slurm log files to results/logs by:  
+`mkdir results/logs` then `mv slurm-trimgalore* results/logs`.
