@@ -5,7 +5,7 @@
 3. Created a README.md file: `touch README.md`
 4. Created dirs scripts & results: `mkdir scripts` then `mkdir results`
 -  Added results/ to .gitignore: `echo "results/" > .gitignore`
-- Copied in fastq data to data dir: `cp -rv ../garrigos-data/fastq data` (this step was accidentally skipped until the end, added back after Q14 in Part C)
+- Copied in fastq data to data dir: `cp -rv ../garrigos-data/fastq data` (seemed to have made a mistake and added this back after Q14 in Part C. As most of the commands were created based off of ../garrigos-data dir, I added what I think are the correct commands below them if I had used the data/fastq files instead.)
 - Added data/ to .gitignore: `echo "data/" >> .gitignore` 
 5. Made the trimgalore.sh file: `touch scripts/trimgalore.sh`
 - Copied in the starting script in the assignment:
@@ -105,6 +105,12 @@ And got the output:
 Submitted batch job 37876463
 ```
 
+However, I believe the command would be this if I had used the fastq data in the data/dir: 
+
+```bash
+sbatch scripts/trimgalore.sh data/fastq/ERR10802863_R1.fastq.gz data/fastq/ERR10802863_R2.fastq.gz results/fastq
+```
+
 9. I unfortunately didn't catch the job pending, but I did catch it running by by entering: `squeue -u $USER -l`
 
 ```bash
@@ -175,6 +181,11 @@ sbatch scripts/trimgalore.sh ../garrigos-data/fastq/ERR10802863_R1.fastq.gz ../g
 ```
 
 With the output: `Submitted batch job 37876543`
+
+Again, the input if it had come from the data dir: 
+```bash
+sbatch scripts/trimgalore.sh data/fastq/ERR10802863_R1.fastq.gz data/fastq/ERR10802863_R2.fastq.gz results/fastq
+```
 
 This unfortunately didn't make a difference, I tried moving `--trim-n` around, and also tried a few different options, for example `--quality 20` or `--2color 2`, but none of them worked.
 
@@ -399,6 +410,15 @@ slurm-trimgalore-37879029.out  slurm-trimgalore-37879038.out
 I moved the slurm log files to results/logs by:  
 `mkdir results/logs` then `mv slurm-trimgalore* results/logs`.
 
+
+Again, the correct input for the loop if the fastq data was coming from the data dir I believe should have been:
+```bash
+for R1 in ../garrigos-data/fastq/*_R1.fastq.gz; do
+    R2=${R1/_R1/_R2}
+    sbatch scripts/trimgalore.sh "$fastq" results/fastqc
+done
+```
+
 <br>
 
 ## Part D: 
@@ -411,6 +431,6 @@ git branch -M main
 git push -u origin main
 ```
 
-I also did some final edits, and did the command again.
+I also did some final edits two separate times, and redid the command twice for each time. 
 
-16. Both @menukabh and @jelmerp were tagged in an issue. 
+16. Both @menukabh and @jelmerp were tagged in an issue once completed. 
