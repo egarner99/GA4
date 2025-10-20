@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --account=PAS2880
 #SBATCH --cpus-per-task=8
-#SBATCH --time=80
+#SBATCH --time=30
 #SBATCH --output=slurm-trimgalore-%j.out
 #SBATCH --mail-type=FAIL
 
