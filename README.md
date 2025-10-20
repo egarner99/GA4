@@ -62,6 +62,16 @@ date
 #SBATCH --output=slurm-trimgalore-%j.out
 #SBATCH --mail-type=FAIL
 ```
+
+At the end of the assignment, I noticed that I had put 80 instead of 30 minutes in this section, and edited it in the script:
+```bash
+#SBATCH --account=PAS2880
+#SBATCH --cpus-per-task=8
+#SBATCH --time=30
+#SBATCH --output=slurm-trimgalore-%j.out
+#SBATCH --mail-type=FAIL
+```
+
 7. Checked the trim_galore by: 
 ```bash
 TRIMGALORE_CONTAINER=oras://community.wave.seqera.io/library/trim-galore:0.6.10--bc38c9238980c80e
@@ -84,9 +94,16 @@ apptainer exec "$TRIMGALORE_CONTAINER" \
     "$R2"
  ```
 
-8. I used the command: `sbatch scripts/trimgalore.sh ../garrigos-data/fastq/ERR10802863_R1.fastq.gz ../garrigos-data/fastq/ERR10802863_R2.fastq.gz results/fastq`
+8. I used the command: 
 
-And got the output: `Submitted batch job 37876463`
+```bash
+sbatch scripts/trimgalore.sh ../garrigos-data/fastq/ERR10802863_R1.fastq.gz ../garrigos-data/fastq/ERR10802863_R2.fastq.gz results/fastq
+```
+
+And got the output: 
+```bash
+Submitted batch job 37876463
+```
 
 9. I unfortunately didn't catch the job pending, but I did catch it running by by entering: `squeue -u $USER -l`
 
@@ -104,7 +121,10 @@ Sun Oct 19 20:34:00 2025
           37875093       cpu ondemand egarner9  RUNNING    1:22:56   2:00:00      1 p0224
 ```
 
-I also checked if the SLURM file was present by using `ls` and got the output: `data  README.md  results  scripts  slurm-trimgalore-37876463.out`
+I also checked if the SLURM file was present by using `ls` and got the output: 
+```bash
+data  README.md  results  scripts  slurm-trimgalore-37876463.out
+```
 
 The Slurm file also had the final logging statements, letting me know that the job completed successfully: 
 ```bash
@@ -126,11 +146,17 @@ I removed all the outputs by: `rm slurm-trimgalore*` and then `rm results/fastq/
 
 10. I reran the job to check, yes I did notice one long string of G's in the file. There were a couple in sets of three as well in the middle-ish of the reads, but I wasn't sure if they were originally N's. (redeleted the files using the same process as previously). 
 
-11. I reloaded the tab, so I had reassign TRIMGALORE_CONTAINER: `TRIMGALORE_CONTAINER=oras://community.wave.seqera.io/library/trim-galore:0.6.10--bc38c9238980c80e`
+11. I reloaded the tab, so I had reassign TRIMGALORE_CONTAINER: `
+```bash
+TRIMGALORE_CONTAINER=oras://community.wave.seqera.io/library/trim-galore:0.6.10--bc38c9238980c80e`
+```
 
-Then I used the same command previously: `apptainer exec "$TRIMGALORE_CONTAINER" trim_galore --help`
+Then I used the same command previously: 
+```bash
+apptainer exec "$TRIMGALORE_CONTAINER" trim_galore --help
+```
 
-I think the TrimGalore option I need is `--trim-n`. I added it the script as follows (I believe in this spot below --paired, I unfortunately don't remember the exact placement): 
+I originally thought the TrimGalore option I needed was `--trim-n`. I added it the script as follows (I believe in this spot below --paired, I unfortunately don't remember the exact placement): 
 ```bash
 apptainer exec "$TRIMGALORE_CONTAINER" \
     trim_galore \
@@ -143,7 +169,10 @@ apptainer exec "$TRIMGALORE_CONTAINER" \
     "$R2"
 ```
 
-I than ran the command: `sbatch scripts/trimgalore.sh ../garrigos-data/fastq/ERR10802863_R1.fastq.gz ../garrigos-data/fastq/ERR10802863_R2.fastq.gz results/fastq`
+I than ran the command: 
+```bash
+sbatch scripts/trimgalore.sh ../garrigos-data/fastq/ERR10802863_R1.fastq.gz ../garrigos-data/fastq/ERR10802863_R2.fastq.gz results/fastq
+```
 
 With the output: `Submitted batch job 37876543`
 
@@ -164,7 +193,7 @@ apptainer exec "$TRIMGALORE_CONTAINER" \
 
 I checked the .html files, and it seemed to work to eliminate the G's from the ends for the same R2 file. Again, I wasn't sure if the three sets of G's in the middle of the reads were supposed to be N's, so I left them alone.
 
-I also checked the .html files using simply `--adapter "G{20}" to see if it would work too and it did! I think it might be best to use this one, in case strings of G's also appeared on the R1 file:
+I also checked the .html files using simply `--adapter "G{20}"` to see if it would work too and it did! I think it might be best to use this one, in case strings of G's also appeared on the R1 file:
 
 ```bash
 apptainer exec "$TRIMGALORE_CONTAINER" \
@@ -194,8 +223,14 @@ apptainer exec "$TRIMGALORE_CONTAINER" \
 
 There were also these outputs for R1 and R2 in the trimmng reports: 
 
-- R1: `Sequence: GGGGGGGGGG; Type: regular 3'; Length: 10; Trimmed: 131324 times`
-- R2: `Sequence: GGGGGGGGGG; Type: regular 3'; Length: 10; Trimmed: 155483 times`
+- R1: 
+```bash
+Sequence: GGGGGGGGGG; Type: regular 3'; Length: 10; Trimmed: 131324 times
+```
+- R2: 
+```bash
+Sequence: GGGGGGGGGG; Type: regular 3'; Length: 10; Trimmed: 155483 times
+```
 
 <br>
 
@@ -242,10 +277,12 @@ for fastq in ../garrigos-data/fastq/*fastq.gz; do
 done
 ```
 Then ran the job using:
+```bash
 for R1 in ../garrigos-data/fastq/*_R1.fastq.gz; do
     R2=${R1/_R1/_R2}
     sbatch scripts/trimgalore.sh "$fastq" results/fastqc
 done
+```
 
 But it didn't work. After working with it a bit more, my output was:
 
@@ -281,7 +318,7 @@ Submitted batch job 37879045
 Submitted batch job 37879046
 ```
 
-14. I watched the job using the `squeue -u $USER -l` command. It went by pretty fast, but the ones I caught were:
+14. I watched the job using the `squeue -u $USER -l` command. It went by pretty fast, but a few were:
 
 ```bash
 Sun Oct 19 23:40:35 2025
@@ -359,7 +396,19 @@ slurm-trimgalore-37879028.out  slurm-trimgalore-37879037.out  slurm-trimgalore-3
 slurm-trimgalore-37879029.out  slurm-trimgalore-37879038.out
 ```
 
-I also went through a few to make sure the final logging messages were there.
-
 I moved the slurm log files to results/logs by:  
 `mkdir results/logs` then `mv slurm-trimgalore* results/logs`.
+
+<br>
+
+## Part D: 
+
+15. Github repository created, and named GA4. Repository was pushed to the command line with:
+
+```bash
+git remote add origin git@github.com:egarner99/GA4.git
+git branch -M main
+git push -u origin main
+```
+
+I also did some final edits, so 
