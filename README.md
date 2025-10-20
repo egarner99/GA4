@@ -411,4 +411,6 @@ git branch -M main
 git push -u origin main
 ```
 
-I also did some final edits, so 
+I also did some final edits, and did the command again.
+
+16. Both @menukabh and @jelmerp were tagged in an issue. 
